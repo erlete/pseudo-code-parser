@@ -40,13 +40,8 @@ class PseudoCodeParserBase:
         r"escribir[ ]{0,}\(": "print("
     }
 
-    _REDUNDANT = (
-        r"[ ]{0,}fin_\w+",
-    )
-
     _BEHAVIOR = {
-        "range_end_inclusive": True,
-        "range_step": 1
+        "range_end_inclusive": True
     }
 
 
@@ -82,7 +77,6 @@ class PseudoCodeParser(PseudoCodeParserBase):
         }
 
         self._lines = self._reduce_code()
-        self._remove_redundant_statements()
         self._parse_operators()
         self._parse_statements()
 
@@ -98,12 +92,7 @@ class PseudoCodeParser(PseudoCodeParserBase):
         from indexing lines incorrectly.
         """
 
-        return [
-            item.strip()
-            for item in self._sample.split('\n')
-        ]
-
-    def _remove_redundant_statements(self):
+        return (item.strip() for item in self._sample.split('\n'))
         """Removes redundant statements from the parsed code.
 
         This method removes redundant statements from the parsed code using
@@ -217,15 +206,13 @@ class PseudoCodeParser(PseudoCodeParserBase):
             return "else:"
 
         if len(args) >= 6 and (f" {args[2]} " in self._OPERATORS.values()
-                and f" {args[4]} " in self._OPERATORS.values()):
+                               and f" {args[4]} " in self._OPERATORS.values()):
             return f"if {args[1]} {args[2]} {args[3]} {args[4]} {args[5]}:"
 
         elif len(args) >= 4 and f" {args[2]} " in self._OPERATORS.values():
             return f"if {args[1]} {args[2]} {args[3]}:"
 
         return line
-
-        return f"if {line[1]} {line[2]} {line[3]} {line[4]} {line[5]}:"
 
     @staticmethod
     def count_tabs(line: str):
